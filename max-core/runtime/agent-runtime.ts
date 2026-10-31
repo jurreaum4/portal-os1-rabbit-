@@ -67,4 +67,8 @@ export class AgentRuntime {
   routeCommands(context: AgentContext): AgentCommand {
     return context.command;
   }
+
+  supports(command: AgentCommand): boolean {
+    return this.registry.hasCapability(command);
+  }
 }

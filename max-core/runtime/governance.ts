@@ -16,6 +16,7 @@ export interface GovernanceContext {
   resourceId?: string;
   resourceOwnerId?: string;
   roles?: readonly string[];
+  permission?: string;
 }
 
 export interface GovernanceDecision {
@@ -27,8 +28,22 @@ export interface GovernanceDecision {
   reason?: string;
 }
 
+export type GovernancePolicy = {
+  action: GovernanceAction;
+  resourceType?: string;
+  requiredRoles?: readonly string[];
+  allowOwner?: boolean;
+};
+
 export class GovernanceRuntime {
-  constructor(private readonly identities: Map<string, UserIdentity> = new Map()) {}
+  constructor(
+    private readonly identities: Map<string, UserIdentity> = new Map(),
+    private readonly policyCatalog: Record<string, GovernancePolicy> = {},
+  ) {}
+
+  private normalizeRole(role: string): string {
+    return role.trim().toLowerCase();
+  }
 
   authorize(context: GovernanceContext): GovernanceDecision {
     const actor = this.identities.get(context.actorId);
@@ -44,7 +59,14 @@ export class GovernanceRuntime {
       };
     }
 
-    if (context.resourceOwnerId && context.resourceOwnerId === actor.id) {
+    const policyKey = `${context.resourceType}:${context.action}`;
+    const policy =
+      this.policyCatalog[policyKey] ??
+      this.policyCatalog[context.action] ??
+      this.policyCatalog[context.resourceType] ??
+      undefined;
+
+    if (context.resourceOwnerId && context.resourceOwnerId === actor.id && (policy?.allowOwner ?? true)) {
       return {
         allowed: true,
         actorId: actor.id,
@@ -54,8 +76,8 @@ export class GovernanceRuntime {
       };
     }
 
-    const roles = new Set((context.roles ?? []).map((role) => role.trim().toLowerCase()));
-    for (const role of roles) {
+    const roleSet = new Set((context.roles ?? []).map((role) => this.normalizeRole(role)));
+    for (const role of roleSet) {
       if (actor.hasRole(role)) {
         return {
           allowed: true,
@@ -65,6 +87,29 @@ export class GovernanceRuntime {
           resourceId: context.resourceId,
         };
       }
+    }
+
+    const requiredRoles = (policy?.requiredRoles ?? []).map((role) => this.normalizeRole(role));
+    for (const requiredRole of requiredRoles) {
+      if (actor.hasRole(requiredRole)) {
+        return {
+          allowed: true,
+          actorId: actor.id,
+          action: context.action,
+          resourceType: context.resourceType,
+          resourceId: context.resourceId,
+        };
+      }
+    }
+
+    if (context.permission && actor.hasPermission(context.permission)) {
+      return {
+        allowed: true,
+        actorId: actor.id,
+        action: context.action,
+        resourceType: context.resourceType,
+        resourceId: context.resourceId,
+      };
     }
 
     if (context.action === "admin" && actor.hasRole("admin")) {
@@ -77,7 +122,7 @@ export class GovernanceRuntime {
       };
     }
 
-    if (actor.hasRole("admin")) {
+    if (actor.hasRole("admin") || actor.hasPermission("admin")) {
       return {
         allowed: true,
         actorId: actor.id,
@@ -102,5 +147,10 @@ export class GovernanceRuntime {
     if (!decision.allowed) {
       throw new Error(decision.reason ?? "Permission denied");
     }
+  }
+
+  registerPolicy(policy: GovernancePolicy): void {
+    const key = policy.resourceType ? `${policy.resourceType}:${policy.action}` : policy.action;
+    this.policyCatalog[key] = policy;
   }
 }

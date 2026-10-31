@@ -26,6 +26,10 @@ export class InstallProduct {
       status: "installed",
     };
   }
+
+  static validateOwner(product: Product, userId: string): boolean {
+    return !!userId.trim() && product.ownerId === userId.trim();
+  }
 }
 
 export class UninstallProduct {

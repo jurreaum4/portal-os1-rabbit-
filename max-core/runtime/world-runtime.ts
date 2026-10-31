@@ -66,4 +66,12 @@ export class WorldRuntime {
     this.activeDistrict = "portal";
     return { destination: "portal", success: true };
   }
+
+  getCurrentDistrict(): string {
+    return this.activeDistrict;
+  }
+
+  getLaunchedContentId(): string | null {
+    return this.launchedContentId;
+  }
 }
