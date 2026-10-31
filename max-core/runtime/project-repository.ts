@@ -1,4 +1,4 @@
-import type { Project, ProjectInput } from "./project.js";
+import { Project, Version, type ProjectInput } from "./project.js";
 
 export class ProjectRepository {
   private readonly projects = new Map<string, Project>();
@@ -20,11 +20,8 @@ export class ProjectRepository {
   addVersion(id: string, version: { number: number; notes?: string }): Project {
     const project = this.projects.get(id);
     if (!project) throw new Error(`Project not found: ${id}`);
-    const nextVersion = new (await import("./project.js").then((m) => m.Version))(
-      project.id,
-      version.number,
-      version.notes ?? "",
-    );
+
+    const nextVersion = new Version(project.id, version.number, version.notes ?? "");
     project.addVersion(nextVersion);
     return project;
   }
