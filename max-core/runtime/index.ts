@@ -14,3 +14,5 @@ export * from "./install-record.js";
 export * from "./library-sync.js";
 export * from "./product-registry.js";
 export * from "./install-product.js";
+export * from "./agent-runtime.js";
+export * from "./world-runtime.js";
