@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   AgentRuntime,
   Product,
@@ -7,7 +7,11 @@ import {
   RecommendationEngine,
   InstallProduct,
   WorldRuntime,
-  type AgentContext,
+  IdentityRegistry,
+  UserIdentity,
+  GovernanceRuntime,
+  OperationsRuntime,
+  WorkflowOrchestrator,
 } from "../index.js";
 
 describe("marketplace runtime", () => {
@@ -53,13 +57,19 @@ describe("marketplace runtime", () => {
       status: "installed",
     });
 
-    expect(() => InstallProduct.run(Product.create({
-      id: "draft-product",
-      name: "Draft Pack",
-      ownerId: "owner-1",
-      description: "draft",
-      status: "draft",
-    }), "user-1", "library-1")).toThrow("Only published products can be installed");
+    expect(() =>
+      InstallProduct.run(
+        Product.create({
+          id: "draft-product",
+          name: "Draft Pack",
+          ownerId: "owner-1",
+          description: "draft",
+          status: "draft",
+        }),
+        "user-1",
+        "library-1",
+      ),
+    ).toThrow("Only published products can be installed");
   });
 });
 
@@ -83,8 +93,8 @@ describe("world runtime", () => {
 describe("agent runtime", () => {
   it("enforces permissions, tracks audit and telemetry", () => {
     const runtime = new AgentRuntime();
-    const context: AgentContext = {
-      command: "guide",
+    const context = {
+      command: "guide" as const,
       userId: "user-1",
       payload: { target: "portal" },
     };
@@ -107,5 +117,57 @@ describe("agent runtime", () => {
     runtime["registry"].register("guide-agent", ["guide", "ask", "recommend"] as const);
     expect(runtime.evaluatePermission("user-1", "guide")).toBe(true);
     expect(runtime.evaluatePermission("user-1", "build")).toBe(false);
+  });
+});
+
+describe("identity and governance", () => {
+  it("preserves identity continuity and ownership enforcement", () => {
+    const registry = new IdentityRegistry();
+    registry.register(
+      new UserIdentity({
+        id: "user-1",
+        displayName: "Creator",
+        roles: ["owner", "creator"],
+      }),
+    );
+
+    const governance = new GovernanceRuntime(registry["users"]);
+
+    expect(
+      governance.authorize({
+        actorId: "user-1",
+        action: "publish",
+        resourceType: "product",
+        resourceOwnerId: "user-1",
+      }),
+    ).toMatchObject({ allowed: true, actorId: "user-1" });
+
+    expect(
+      governance.authorize({
+        actorId: "user-1",
+        action: "publish",
+        resourceType: "product",
+        resourceOwnerId: "user-2",
+      }),
+    ).toMatchObject({ allowed: false, reason: "Permission denied" });
+  });
+});
+
+describe("operations and orchestration", () => {
+  it("tracks provider health and runs ordered workflows", async () => {
+    const ops = new OperationsRuntime();
+    ops.report("marketplace", "healthy", "Marketplace is available");
+    ops.report("ai", "degraded", "AI latency elevated");
+
+    expect(ops.summary()).toEqual({ healthy: 1, degraded: 1, blocked: 0 });
+
+    const workflow = new WorkflowOrchestrator();
+    workflow.addStep("identity", () => "resolved");
+    workflow.addStep("publish", () => true);
+
+    const results = await workflow.run();
+    expect(results).toHaveLength(2);
+    expect(results[0]).toMatchObject({ step: "identity", ok: true, value: "resolved" });
+    expect(results[1]).toMatchObject({ step: "publish", ok: true, value: true });
   });
 });

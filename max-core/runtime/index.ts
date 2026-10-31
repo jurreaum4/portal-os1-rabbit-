@@ -16,3 +16,7 @@ export * from "./product-registry.js";
 export * from "./install-product.js";
 export * from "./agent-runtime.js";
 export * from "./world-runtime.js";
+export * from "./identity.js";
+export * from "./governance.js";
+export * from "./operations.js";
+export * from "./workflow.js";
