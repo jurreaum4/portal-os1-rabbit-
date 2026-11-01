@@ -16,9 +16,26 @@ type BemaxSummary = {
     riskCount: number;
     pendingApprovals: number;
   };
-  openRisks: Array<{ id: string; name: string; risk: number; stage: string; summary: string }>;
-  openOpportunities: Array<{ id: string; name: string; score: number; summary: string }>;
-  recommendedActions: Array<{ id: string; title: string; summary: string; score: number; category: string }>;
+  openRisks: Array<{
+    id: string;
+    name: string;
+    risk: number;
+    stage: string;
+    summary: string;
+  }>;
+  openOpportunities: Array<{
+    id: string;
+    name: string;
+    score: number;
+    summary: string;
+  }>;
+  recommendedActions: Array<{
+    id: string;
+    title: string;
+    summary: string;
+    score: number;
+    category: string;
+  }>;
 };
 
 export default function BemaxHome() {
@@ -38,7 +55,9 @@ export default function BemaxHome() {
         }
       } catch (loadError) {
         if (!ignore) {
-          setError(loadError instanceof Error ? loadError.message : String(loadError));
+          setError(
+            loadError instanceof Error ? loadError.message : String(loadError),
+          );
           setLoading(false);
         }
       }
@@ -105,23 +124,39 @@ export default function BemaxHome() {
   );
 
   if (loading) {
-    return <section className="panel"><h1>BEMAX</h1><p>Loading strategic intelligence…</p></section>;
+    return (
+      <section className="panel">
+        <h1>BEMAX</h1>
+        <p>Loading strategic intelligence…</p>
+      </section>
+    );
   }
 
   if (error) {
-    return <section className="panel"><h1>BEMAX</h1><p>Unable to load the strategic dashboard: {error}</p></section>;
+    return (
+      <section className="panel">
+        <h1>BEMAX</h1>
+        <p>Unable to load the strategic dashboard: {error}</p>
+      </section>
+    );
   }
 
   return (
     <section className="page-shell">
       <div className="page-heading command-heading">
         <div>
-          <div className="eyebrow"><span className="tiny-line" /> BEMAX OPERATING INTELLIGENCE</div>
-          <h1>BEMAX<span className="title-dot">.</span></h1>
+          <div className="eyebrow">
+            <span className="tiny-line" /> BEMAX OPERATING INTELLIGENCE
+          </div>
+          <h1>
+            BEMAX<span className="title-dot">.</span>
+          </h1>
           <p>Strategic operating interface for the MAX Universe.</p>
         </div>
         <div className="heading-actions">
-          <Link className="button primary" to="/portal/dashboard">Return to dashboard</Link>
+          <Link className="button primary" to="/portal/dashboard">
+            Return to dashboard
+          </Link>
         </div>
       </div>
 
@@ -182,7 +217,9 @@ export default function BemaxHome() {
                   <div className="decision-preview" key={opportunity.id}>
                     <strong>{opportunity.name}</strong>
                     <p>{opportunity.summary}</p>
-                    <span className="priority-tag high">Score {opportunity.score}</span>
+                    <span className="priority-tag high">
+                      Score {opportunity.score}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -227,10 +264,22 @@ export default function BemaxHome() {
             </div>
             {summary && (
               <div className="health-services">
-                <div><span>Total products</span><span>{summary.portfolio.totalProducts}</span></div>
-                <div><span>Average score</span><span>{summary.portfolio.averageScore}</span></div>
-                <div><span>Revenue</span><span>${summary.portfolio.totalRevenue.toLocaleString()}</span></div>
-                <div><span>Active products</span><span>{summary.portfolio.activeProducts}</span></div>
+                <div>
+                  <span>Total products</span>
+                  <span>{summary.portfolio.totalProducts}</span>
+                </div>
+                <div>
+                  <span>Average score</span>
+                  <span>{summary.portfolio.averageScore}</span>
+                </div>
+                <div>
+                  <span>Revenue</span>
+                  <span>${summary.portfolio.totalRevenue.toLocaleString()}</span>
+                </div>
+                <div>
+                  <span>Active products</span>
+                  <span>{summary.portfolio.activeProducts}</span>
+                </div>
               </div>
             )}
           </section>
