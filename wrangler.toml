@@ -1,11 +1,11 @@
-name = "bemax"
+name = "portal-os1-rabbit-worker"
 main = "apps/worker/src/index.ts"
 compatibility_date = "2026-10-30"
 
 [vars]
 ENV = "production"
 ENVIRONMENT = "production"
-ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,https://portal-os1-rabbit-dn1.pages.dev"
+ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,https://portal-os1-rabbit-worker.jurreaum4.workers.dev"
 ICVS_ENABLED = "true"
 MAX_PROCESS_HEAP_BYTES = 2097152 # 2MB Hard Cap
 
