@@ -1,4 +1,4 @@
-name = "portal-os1"
+name = "portal-os1-rabbit"
 main = "apps/worker/src/index.ts"
 compatibility_date = "2026-10-30"
 
