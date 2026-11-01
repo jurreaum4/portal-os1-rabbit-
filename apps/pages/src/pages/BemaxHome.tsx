@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
+import { KpiCard } from "../components/KpiCard";
+import { BemaxCopilot } from "../components/BemaxCopilot";
+import { OraclePanel } from "../components/OraclePanel";
 
 type BemaxSummary = {
   generatedAt: string;
@@ -53,41 +56,49 @@ export default function BemaxHome() {
         label: "Executive Status",
         value: summary ? `${summary.portfolio.averageScore}/100` : "—",
         detail: "Portfolio score",
+        tint: "purple",
       },
       {
         label: "Open Risks",
         value: summary ? String(summary.openRisks.length) : "—",
         detail: "Active risk signals",
+        tint: "amber",
       },
       {
         label: "Open Opportunities",
         value: summary ? String(summary.openOpportunities.length) : "—",
         detail: "Promotion candidates",
+        tint: "green",
       },
       {
         label: "Pending Approvals",
         value: summary ? String(summary.portfolio.pendingApprovals) : "—",
         detail: "Needs governor attention",
+        tint: "blue",
       },
       {
         label: "Provider Health",
         value: summary ? `${summary.portfolio.activeProducts} active` : "—",
         detail: "Execution capacity in view",
+        tint: "purple",
       },
       {
         label: "Simulation Activity",
         value: summary ? `${summary.portfolio.totalProducts}` : "—",
         detail: "Products tracked",
+        tint: "blue",
       },
       {
         label: "Research Activity",
         value: summary ? `${summary.portfolio.livingDivisions}` : "—",
         detail: "Visible divisions",
+        tint: "green",
       },
       {
         label: "Recommended Actions",
         value: summary ? String(summary.recommendedActions.length) : "—",
         detail: "Current guidance",
+        tint: "amber",
       },
     ],
     [summary],
@@ -123,15 +134,13 @@ export default function BemaxHome() {
 
       <div className="command-metrics">
         {widgets.map((widget) => (
-          <article className="command-metric purple" key={widget.label}>
-            <div className="metric-label">
-              {widget.label}
-              <span className="metric-symbol"><span aria-hidden="true">✦</span></span>
-            </div>
-            <strong>{widget.value}<small /></strong>
-            <p><span className="metric-indicator" />{widget.detail}</p>
-            <div className="metric-bottom">Strategic signal</div>
-          </article>
+          <KpiCard
+            key={widget.label}
+            label={widget.label}
+            value={widget.value}
+            detail={widget.detail}
+            tint={widget.tint as "purple" | "blue" | "amber" | "green"}
+          />
         ))}
       </div>
 
@@ -203,9 +212,18 @@ export default function BemaxHome() {
             )}
           </section>
 
+          <OraclePanel />
+        </div>
+      </div>
+
+      <div className="command-grid" style={{ marginTop: 24 }}>
+        <div className="command-primary">
           <section className="panel">
             <div className="section-heading">
-              <h2>Portfolio Snapshot</h2>
+              <div>
+                <h2>Portfolio Snapshot</h2>
+                <p>Live operating picture across product performance.</p>
+              </div>
             </div>
             {summary && (
               <div className="health-services">
@@ -216,6 +234,10 @@ export default function BemaxHome() {
               </div>
             )}
           </section>
+        </div>
+
+        <div className="command-secondary">
+          <BemaxCopilot />
         </div>
       </div>
     </section>
