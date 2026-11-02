@@ -1,4 +1,4 @@
-import Institute from "./pages/Institute";
+import StaffConsole from "./pages/StaffConsole";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
@@ -80,6 +80,7 @@ createRoot(document.getElementById("root")!).render(
             />
             <Route path="portal" element={<Ecosystem />} />
             <Route path="portal/ecosystem" element={<Ecosystem />} />
+            <Route path="portal/staff" element={<StaffConsole />} />
             <Route
               path="portal/governor"
               element={
@@ -117,6 +118,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="analytics" element={<Analytics />} />
             <Route path="departments" element={<Departments />} />
             <Route path="forecasting" element={<Forecasting />} />
+            <Route path="staff" element={<StaffConsole />} />
             <Route
               path="governance"
               element={
