@@ -8,6 +8,7 @@ const links = [
   ["/portal/intelligence", "spark", "Intelligence"],
   ["/portal/twin", "portfolio", "Digital twin"],
   ["/portal/marketplace", "products", "Marketplace"],
+  ["/portal/staff", "spark", "Staff gateway"],
   ["/portal/dashboard", "dashboard", "Dashboard"],
   ["/portfolio", "portfolio", "Portfolio"],
   ["/products", "products", "Products"],
